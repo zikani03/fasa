@@ -32,6 +32,18 @@ class Entry {
     return amount;
   }
 
+  static Entry tryParse(String v) {
+    try {
+      return parseLine(v);
+    } catch(e) {
+      try {
+        return parseLineRTL(v);
+      } catch(e) {
+        throw Exception("failed to parse expression into Entry got ${e.toString()}");
+      }
+    }
+  }
+
   static Entry parseLine(String v) {
     var res = lineExprLTR.firstMatch(v);
     if (res == null) {
