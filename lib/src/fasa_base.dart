@@ -10,7 +10,7 @@
   * <1 mita something else
   */
 final lineExprLTR = RegExp(
-    r'(<|\+|-|>)?\s?((\d*\.?\d{0,3})(k|K|pin|m|mita|grand)?)(\s?\w.*$)',
+    r'(<|\+|-|>)?\s?((\d*\.?\d{0,3})(k|K|j|J|l|L|pin|n|N|m|M|mita|grand)?)(\s?\w.*$)',
     multiLine: false,
     caseSensitive: false);
 
@@ -25,6 +25,6 @@ final lineExprLTR = RegExp(
   * something else <1 mita 
   */
 final lineExprRTL = RegExp(
-    r'(\s?\w.*)\s+(<|\+|-|>)?((\d*\.?\d{0,3})(k|K|pin|m|mita|grand)?)$',
+    r'(\s?\w.*)\s+(<|\+|-|>)?((\d*\.?\d{0,3})(k|K|j|J|l|L|pin|m|M|n|N|mita|grand)?)$',
     multiLine: false,
     caseSensitive: false);
