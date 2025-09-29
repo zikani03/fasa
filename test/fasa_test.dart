@@ -37,6 +37,8 @@ void main() {
       'potatoes 3000.00',
       'potatoes >3k',
       'potatoes +3k',
+      'potatoes +3j',
+      'potatoes +3l',
     ];
     for (var expr in expressions) {
       var entry = Entry.parseLineRTL(expr);

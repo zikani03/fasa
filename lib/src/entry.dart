@@ -20,12 +20,12 @@ class Entry {
 
   static double amountFromDenomination(double v, String denomination) {
     var amount = v;
-    if (denomination == 'k' ||
+    if (denomination == 'k' || (denomination == "j" || denomination == "l") || // j and l are typo-tolerant for k
         denomination == 'pin' ||
         denomination == 'grand') {
       amount = amount * 1000.00;
     } else if (denomination == 'mita' ||
-        denomination == 'm' ||
+        denomination == 'm' || (denomination == "n") || // n is typo-tolerant for m
         denomination == 'million') {
       amount = amount * 1000000.00;
     }
