@@ -18,6 +18,11 @@ class Entry {
     this.description,
   );
 
+  @override
+  String toString() {
+    return 'id: ${this.id}, description: ${this.description}, amount: ${this.amount}, opType: ${this.opType}';
+  }
+
   static double amountFromDenomination(double v, String denomination) {
     var amount = v;
     if (denomination == 'k' || (denomination == "j" || denomination == "l") || // j and l are typo-tolerant for k
@@ -44,7 +49,13 @@ class Entry {
     }
   }
 
-  static Entry parseLine(String v) {
+  static Entry parseLine(String v, {bool withFormula = true}) {
+    v = expandShorthand2(v);
+    
+    if (withFormula) {
+      var expanded = tryEvaluateFormula(v, false);
+      return expanded;
+    }
     var res = lineExprLTR.firstMatch(v);
     if (res == null) {
       throw Exception("could not parse string");
@@ -56,15 +67,21 @@ class Entry {
 
     var entry = Entry(
       'txn-${DateTime.now().millisecond}',
-      res.group(1) == ">" || res.group(1) == "+" ? "CREDIT" : "DEBIT",
+      "UNKNOWN", //res.group(1) == ">" || res.group(1) == "+" ? "CREDIT" : "DEBIT",
       amount,
-      '${res.group(5)}'.trim(),
+      'kaya', //'${res.group(5)}'.trim(),
     );
     return entry;
   }
 
-  static Entry parseLineRTL(String v) {
-    var res = lineExprRTL.firstMatch(v.trim());
+  static Entry parseLineRTL(String v, { bool withFormula = true }) {
+    v = expandShorthand2(v.trim());
+    if (withFormula) {
+      var expanded = tryEvaluateFormula(v, true);
+      return expanded;
+    }
+
+    var res = lineExprRTL.firstMatch(v);
     if (res == null) {
       throw Exception("could not parse string");
     }
@@ -74,22 +91,44 @@ class Entry {
 
     var entry = Entry(
       'txn-${DateTime.now().millisecond}',
-      res.group(2) == ">" || res.group(2) == "+" ? "CREDIT" : "DEBIT",
+      "UNKNOWN", //res.group(2) == ">" || res.group(2) == "+" ? "CREDIT" : "DEBIT",
       amount,
       '${res.group(1)}'.trim(),
     );
     return entry;
   }
 
-  static Entry parseExpressionAsTransaction(String userInput) {
+  static Entry tryEvaluateFormula(String userInput, bool isRTL) {
     var parts = userInput.split(' ');
     try {
-      var exp = FormulaParser(parts[0]);
+      if (parts.isEmpty) {
+        throw Exception('invalid expression: $userInput');
+      }
+      var expr = parts[0];
+      if (parts.length >= 2 && isRTL) {
+        expr = parts[1];
+      }
+      
+      var exp = FormulaParser(expr);
       if (!exp.error) {
         var result = exp.parse;
         if (result['isSuccess']) {
           var amount = result['value'];
-          return Entry.parseLine('$amount ${parts.sublist(1).join(' ')}');
+
+          if (isRTL) {
+            return Entry(
+              'id',
+              'UNKNOWN',
+              amount,
+              parts[0],
+            );
+          }
+          return Entry(
+            'id',
+            'UNKNOWN',
+            amount,
+            parts.sublist(1).join(' '),
+          );
         } else {
           throw Exception('failed to parse expression');
         }
@@ -97,8 +136,11 @@ class Entry {
         throw Exception('failed to parse expression got ${exp.errorMessage}');
       }
     } catch (e) {
-      // Default to parsing the line without expressions
-      return Entry.parseLine(userInput);
+      print('defaulting to parsing without formula for $userInput got $e');
+      if (isRTL) {
+        return Entry.parseLineRTL(userInput, withFormula: false);
+      }
+      return Entry.parseLine(userInput, withFormula: false);
     }
   }
 }
