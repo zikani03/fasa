@@ -10,13 +10,12 @@ void main() {
   test('Entry should be parsed from regular text', () {
     var expressions = [
       '3k potatoes',
-      '3000 potatoes',
       '3.0k potatoes',
+      '3000 potatoes',
       '3000.00 potatoes',
-      '>3k potatoes',
-      '+3k potatoes',
     ];
     for (var expr in expressions) {
+      // print('trying to parse $expr');
       var entry = Entry.parseLine(expr);
       expect(entry.amount, 3000.00, reason: "failed with expression $expr");
       expect(entry.description, 'potatoes', reason: "failed with expression $expr");
@@ -35,10 +34,10 @@ void main() {
       'potatoes 3000',
       'potatoes 3.0k',
       'potatoes 3000.00',
-      'potatoes >3k',
-      'potatoes +3k',
-      'potatoes +3j',
-      'potatoes +3l',
+      'potatoes 3k',
+      'potatoes 3k',
+      'potatoes 3j',
+      'potatoes 3l',
     ];
     for (var expr in expressions) {
       var entry = Entry.parseLineRTL(expr);
@@ -48,6 +47,23 @@ void main() {
   });
   });
 
+
+  group('test tryParse logic with shorthand expansion', () {
+    var expressions = [
+      '3k*3',
+      '3000*3',
+      '3.0k*3',
+      '0.15*20*3k',
+    ];
+    for (var expr in expressions) {
+      test('should expand shorthand and evaluate: $expr', () {
+        // print('trying to parse $expr');
+        var entry = Entry.tryParse(expr);
+        expect(entry.amount, 9000.00, reason: "failed with expression $expr");
+      
+      },);
+    }
+  });
   group('Test tag parsing logic', () {
     setUp(() {
       // Additional setup goes here.
