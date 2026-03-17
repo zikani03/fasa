@@ -1,6 +1,6 @@
 name: fasa
 description: Support for parsing a somewhat natural language expression into objects for use in Finance applications.
-version: 0.1.0
+version: 0.4.0
 repository: https://github.com/zikani03/fasa
 
 environment:
