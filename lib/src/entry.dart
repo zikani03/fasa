@@ -1,7 +1,5 @@
-// const EntryType = "CREDIT"|"DEBIT"|"INCOMING"|"OUTGOING";
-
-
 import 'package:fasa/fasa.dart';
+import 'package:fasa/src/classifier.dart';
 import 'package:formula_parser/formula_parser.dart';
 
 class Entry {
@@ -9,6 +7,7 @@ class Entry {
   final String description;
   final double amount;
   final String opType;
+  final String category;
 
 
   Entry(
@@ -16,11 +15,12 @@ class Entry {
     this.opType,
     this.amount,
     this.description,
+    { this.category = 'misc'}
   );
 
   @override
   String toString() {
-    return 'id: ${this.id}, description: ${this.description}, amount: ${this.amount}, opType: ${this.opType}';
+    return 'id: ${this.id}, description: ${this.description}, amount: ${this.amount}, opType: ${this.opType}, category: ${this.category}';
   }
 
   static double amountFromDenomination(double v, String denomination) {
@@ -37,7 +37,7 @@ class Entry {
     return amount;
   }
 
-  static Entry tryParse(String v) {
+  static Entry tryParse(String v, {FasaClassifier? classifier}) {
     try {
       return parseLine(v);
     } catch(e) {
